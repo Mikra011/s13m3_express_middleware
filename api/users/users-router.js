@@ -57,23 +57,34 @@ router.delete('/:id', validateUserId, (req, res, next) => {
   // RETURN THE FRESHLY DELETED USER OBJECT
   // this needs a middleware to verify user id
   Users.remove(req.params.id)
-    .then(() => { 
+    .then(() => {
       res.json(req.user)
     })
     .catch(next)
 });
 
-router.get('/:id/posts', validateUserId, (req, res) => {
+router.get('/:id/posts', validateUserId, (req, res, next) => {
   // RETURN THE ARRAY OF USER POSTS
   // this needs a middleware to verify user id
-
+  Users.getUserPosts(req.params.id)
+    .then(posts => {
+      res.json(posts)
+    })
+    .catch(next)
 });
 
-router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
+router.post('/:id/posts', validateUserId, validatePost, (req, res, next) => {
   // RETURN THE NEWLY CREATED USER POST
   // this needs a middleware to verify user id
   // and another middleware to check that the request body is valid
-
+  Posts.insert({
+    user_id: req.params.id,
+    text: req.text
+  })
+  .then(newPost => {
+    res.status(201).json(newPost)
+  })
+  .catch(next)
 });
 
 router.use((error, req, res, next) => { //eslint-disable-line
